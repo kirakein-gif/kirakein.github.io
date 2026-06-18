@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>장바구니 품의목록 자동화 (천안버들유)</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Pretendard',sans-serif;}
+body{background:#f0f4f8;min-height:100vh;display:flex;flex-direction:column;}
+.topbar{background:#1e293b;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+.topbar h1{font-size:1rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;}
+.site-badge{padding:3px 10px;border-radius:4px;font-size:.72rem;font-weight:800;background:#4285f4;color:#fff;display:none;}
+.summary-wrap{display:flex;gap:10px;}
+.summary-card{background:rgba(255,255,255,.1);padding:6px 14px;border-radius:8px;text-align:right;}
+.summary-card span{font-size:.72rem;color:#94a3b8;}
+.summary-card strong{display:block;font-size:1rem;color:#60a5fa;font-weight:700;}
+.toolbar{padding:12px 24px;display:flex;gap:8px;background:#fff;border-bottom:1px solid #e2e8f0;align-items:center;}
+.btn{padding:8px 16px;border:none;border-radius:7px;font-weight:600;font-size:.83rem;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.15s;}
+.btn-excel{background:#10b981;color:#fff;}
+.btn-excel:hover{background:#0da872;}
+.btn-clear{background:transparent;border:1px solid #e2e8f0;color:#94a3b8;}
+.btn-clear:hover{background:#fee2e2;color:#ef4444;border-color:#fca5a5;}
+.install-panel{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin:20px 24px;padding:18px 20px;}
+.install-panel h2{font-size:.9rem;font-weight:700;margin-bottom:12px;color:#334155;}
+.install-steps{font-size:.82rem;color:#475569;line-height:2.2;}
+.install-steps b{color:#1e293b;}
+.bm-row{display:flex;align-items:center;gap:12px;margin-top:14px;background:#fff;border:1.5px dashed #c0c8d8;border-radius:8px;padding:12px 16px;}
+.bm-btn{display:inline-block;padding:9px 18px;border-radius:7px;font-size:.83rem;font-weight:700;color:#fff;cursor:grab;text-decoration:none;user-select:none;white-space:nowrap;flex-shrink:0;background:#4285f4;}
+.bm-hint{font-size:.76rem;color:#888;line-height:1.6;}
+.bm-hint b{color:#444;}
+.table-wrap{flex:1;padding:20px 24px;overflow-y:auto;}
+.table-box{background:#fff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;}
+table{width:100%;border-collapse:collapse;table-layout:fixed;}
+th,td{padding:10px 12px;font-size:.85rem;border-bottom:1px solid #e2e8f0;text-align:center;}
+th{background:#f8fafc;font-weight:600;color:#475569;}
+td:nth-child(2),td:nth-child(3){text-align:left;}
+.edit-input{width:100%;border:1px solid transparent;background:transparent;padding:3px 5px;font-size:.85rem;font-family:inherit;border-radius:4px;}
+.edit-input:focus{border-color:#3b82f6;background:#fff;outline:none;}
+.del-btn{background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:1rem;padding:2px 6px;border-radius:4px;}
+.del-btn:hover{color:#ef4444;background:#fee2e2;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🛒 장바구니 품의목록 <span class="site-badge" id="siteBadge">쿠팡</span></h1>
+  <div class="summary-wrap">
+    <div class="summary-card"><span>품목 수</span><strong id="sumCount">0건</strong></div>
+    <div class="summary-card"><span>합계금액</span><strong id="sumTotal">0원</strong></div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <button class="btn btn-excel" onclick="exportExcel()">📥 엑셀 다운로드</button>
+  <button class="btn btn-clear" onclick="clearAll()">🗑 목록 초기화</button>
+</div>
+
+<div class="install-panel" id="installPanel">
+  <h2>📌 북마클릿 설치 방법 (최초 1회)</h2>
+  <div class="install-steps">
+    <b>①</b> 브라우저 북마크바 표시: <b>Ctrl+Shift+B</b><br>
+    <b>②</b> 아래 파란 버튼을 <b>북마크바로 드래그</b>하여 저장<br>
+    <b>③</b> 쿠팡 장바구니에서 상품 체크 후 저장한 북마클릿 클릭<br>
+    <b>④</b> 이 페이지로 자동으로 돌아오면서 목록이 표시됩니다
+  </div>
+  <div class="bm-row">
+    <a class="bm-btn" id="bmBtn" href="#">🛒 쿠팡 장바구니 추출</a>
+    <div class="bm-hint">← <b>북마크바로 드래그</b>하여 설치<br>쿠팡 장바구니 페이지에서만 작동합니다</div>
+  </div>
+</div>
+
+<div class="table-wrap" id="tableWrap" style="display:none;">
+  <div class="table-box">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:44px;"><input type="checkbox" id="chkAll" checked onchange="toggleAll(this.checked)"></th>
+          <th style="width:38%;">상품명</th>
+          <th>규격(옵션)</th>
+          <th style="width:58px;">단위</th>
+          <th style="width:70px;">수량</th>
+          <th style="width:110px;text-align:right;padding-right:16px;">단가</th>
+          <th style="width:40px;"></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+var items = [];
+
+/* ── 북마클릿을 이 파일의 실제 URL 기반으로 동적 생성 ── */
+window.addEventListener('load', function() {
+
+  // 이 페이지의 URL (북마클릿이 돌아올 주소)
+  var thisURL = location.href.split('#')[0];
+
+  // 북마클릿 코드: 쿠팡에서 실행, sessionStorage에 저장 후 이 페이지로 이동
+  var bmCode = 'javascript:(function(){' +
+    'var items=[];' +
+    'document.querySelectorAll("input[type=checkbox]:checked").forEach(function(cb){' +
+      'var c=cb.parentElement.parentElement.parentElement;' +
+      'var t=c.innerText;' +
+      'var nm=t.match(/^([\\s\\S]+?)\uC635\uC158:/);' +
+      'if(!nm)return;' +
+      'var name=nm[1].trim();' +
+      'var sm=t.match(/\uC635\uC158:\\s*([^\\n]+)/);' +
+      'var sr=sm?sm[1].trim():"";' +
+      'var pm=t.match(/([\\d,]+)\\s*\uC6D0/);' +
+      'var price=pm?parseInt(pm[1].replace(/,/g,"")):"0";' +
+      'price=parseInt(price)||0;' +
+      'if(!price)return;' +
+      'var qm=sr.match(/,\\s*(\\d+)\uAC1C$/)||sr.match(/^(\\d+)\uAC1C$/);' +
+      'var qty=qm?parseInt(qm[1]):1;' +
+      'var spec=sr.replace(/,?\\s*\\d+\uAC1C$/,"").trim();' +
+      'items.push({name:name,spec:spec,unit:"\uAC1C",qty:qty,price:Math.floor(price/qty),selected:true,site:"\uCFE0\uD321"});' +
+    '});' +
+    'if(!items.length){alert("\uCCB4\uD06C\uB41C \uC0C1\uD488\uC744 \uCC3E\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4.\\n\uC0C1\uD488\uC744 \uCCB4\uD06C\uD588\uB294\uC9C0 \uD655\uC778\uD574\uC8FC\uC138\uC694.");return;}' +
+    'sessionStorage.setItem("cartItems",JSON.stringify(items));' +
+    'location.href="' + thisURL + '";' +
+  '})();';
+
+  document.getElementById('bmBtn').href = bmCode;
+
+  // sessionStorage에서 데이터 읽기
+  var raw = sessionStorage.getItem('cartItems');
+  if (raw) {
+    try {
+      items = JSON.parse(raw);
+      sessionStorage.removeItem('cartItems');
+      if (items.length) {
+        document.getElementById('installPanel').style.display = 'none';
+        document.getElementById('tableWrap').style.display = 'block';
+        document.getElementById('siteBadge').style.display = 'inline-block';
+        render();
+      }
+    } catch(e) {}
+  }
+});
+
+function render() {
+  var tbody = document.getElementById('tbody');
+  tbody.innerHTML = items.map(function(it, idx) {
+    var nv = (it.name||'').replace(/"/g,'&quot;');
+    var sv = (it.spec||'').replace(/"/g,'&quot;');
+    return '<tr>' +
+      '<td><input type="checkbox"'+(it.selected?' checked':'')+' onchange="setField('+idx+',\'selected\',this.checked)"></td>' +
+      '<td><input class="edit-input" value="'+nv+'" onblur="setField('+idx+',\'name\',this.value)"></td>' +
+      '<td><input class="edit-input" style="color:#3b82f6" value="'+sv+'" onblur="setField('+idx+',\'spec\',this.value)"></td>' +
+      '<td><input class="edit-input" value="'+(it.unit||'개')+'" onblur="setField('+idx+',\'unit\',this.value)"></td>' +
+      '<td><input class="edit-input" value="'+(it.qty||1)+'" onblur="setField('+idx+',\'qty\',this.value)"></td>' +
+      '<td style="text-align:right;padding-right:16px;"><input class="edit-input" style="text-align:right" value="'+(it.price||0).toLocaleString()+'" onblur="setField('+idx+',\'price\',this.value)"></td>' +
+      '<td><button class="del-btn" onclick="deleteRow('+idx+')" title="삭제">✕</button></td>' +
+    '</tr>';
+  }).join('');
+  updateSummary();
+}
+
+function setField(idx, field, val) {
+  if(field==='qty'||field==='price') items[idx][field]=parseInt(String(val).replace(/,/g,''))||0;
+  else items[idx][field]=val;
+  if(field!=='selected') render(); else updateSummary();
+}
+function deleteRow(idx){items.splice(idx,1);if(!items.length)clearAll();else render();}
+function toggleAll(checked){items.forEach(function(i){i.selected=checked;});render();}
+function updateSummary(){
+  var sel=items.filter(function(i){return i.selected;});
+  var total=sel.reduce(function(acc,i){return acc+(i.qty*i.price);},0);
+  document.getElementById('sumCount').innerText=sel.length+'건';
+  document.getElementById('sumTotal').innerText=total.toLocaleString()+'원';
+  var chkAll=document.getElementById('chkAll');
+  if(chkAll) chkAll.checked=sel.length===items.length&&items.length>0;
+}
+function clearAll(){
+  items=[];
+  document.getElementById('installPanel').style.display='block';
+  document.getElementById('tableWrap').style.display='none';
+  document.getElementById('siteBadge').style.display='none';
+  updateSummary();
+}
+function exportExcel(){
+  var sel=items.filter(function(i){return i.selected;});
+  if(!sel.length){alert('선택된 항목이 없습니다.');return;}
+  var data=sel.map(function(i){return{'내용':i.name,'규격(옵션)':i.spec||'','단위':i.unit||'개','수량':i.qty,'예상단가':i.price};});
+  var ws=XLSX.utils.json_to_sheet(data);
+  ws['!cols']=[{wch:40},{wch:20},{wch:8},{wch:8},{wch:12}];
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'품목내역');
+  var now=new Date();
+  var stamp=now.getFullYear()+('0'+(now.getMonth()+1)).slice(-2)+('0'+now.getDate()).slice(-2);
+  XLSX.writeFile(wb,'장바구니품의목록_'+stamp+'.xlsx');
+}
+</script>
+</body>
+</html>
