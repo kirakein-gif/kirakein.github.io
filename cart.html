@@ -44,7 +44,7 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
 <body>
 
 <div class="topbar">
-  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.14</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
+  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.15</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
   <div class="summary-wrap">
     <div class="summary-card"><span>품목 수</span><strong id="sumCount">0건</strong></div>
     <div class="summary-card"><span>합계금액</span><strong id="sumTotal">0원</strong></div>
@@ -240,11 +240,12 @@ window.addEventListener('load', function() {
       'if(priceIdx<0)return;' +
       'var afterPrice=t.substring(priceIdx+PRICE.length);' +
       'var priceLines=afterPrice.split(NL).map(function(s){return s.trim();}).filter(function(s){return s.length>0;});' +
-      'var price=parseInt(priceLines[0].replace(/,/g,""))||0;' +
-      'if(!price)return;' +
-      // 수량: input[type=number].ordQty
+      'var totalPrice=parseInt(priceLines[0].replace(/,/g,""))||0;' +
+      'if(!totalPrice)return;' +
+      // 수량: input[type=number]
       'var qtyInput=c3.querySelector("input[type=number]");' +
       'var qty=qtyInput?parseInt(qtyInput.value)||1:1;' +
+      'var price=Math.floor(totalPrice/qty);' +
       'items.push({name:name,spec:"",unit:"\uac1c",qty:qty,price:price,selected:true,site:"\uc774\ub9c8\ud2b8\ubab0"});' +
     '});' +
     'var shipDl=Array.from(document.querySelectorAll("dl")).find(function(el){' +
