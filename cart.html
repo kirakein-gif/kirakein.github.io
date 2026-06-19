@@ -136,35 +136,35 @@ window.addEventListener('load', function() {
 
   // 지마켓 북마클릿
   var bmGmarket = 'javascript:(function(){' +
-    'var items=[];' +
-    'var seen={};' +
+    'var items=[];var seen={};' +
     'document.querySelectorAll("input[type=checkbox]:checked").forEach(function(cb){' +
       'if(cb.parentElement.parentElement.innerText.length>0)return;' +
       'var c=cb.parentElement.parentElement.parentElement;' +
       'var t=c.innerText;' +
-      'if(!t.includes("\uc0c1\ud488\uba85:"))return;' +
-      'var nm=t.match(/\uc0c1\ud488\uba85:\n(.+?)\n/);' +
+      'if(!t.includes("상품명:"))return;' +
+      'var nm=t.match(/상품명:\\n(.+?)\\n/);' +
       'var name=nm?nm[1].trim():"";' +
       'if(!name||seen[name])return;seen[name]=true;' +
-      'var op=t.match(/\uc635\uc158\uc120\ud0dd \uc815\ubcf4\n(.+?)\n/);' +
+      'var op=t.match(/옵션선택 정보\\n(.+?)\\n/);' +
       'var spec=op?op[1].trim():"";' +
-      'var qm=t.match(/\uc0c1\ud488 \uc218\s+(\d+)\s+\uc99d\uac00/);' +
+      'var qm=t.match(/상품 수\\s+(\\d+)\\s+증가/);' +
       'var qty=qm?parseInt(qm[1]):1;' +
-      'var pm=t.match(/\uc0c1\ud488 \uae08\uc561 :\n([\d,]+)\uc6d0/);' +
+      'var pm=t.match(/상품 금액 :\\n([\\d,]+)원/);' +
       'var price=pm?parseInt(pm[1].replace(/,/g,"")):"0";' +
       'price=parseInt(price)||0;' +
       'if(!price)return;' +
-      'items.push({name:name,spec:spec,unit:"\uac1c",qty:qty,price:price,selected:true,site:"G\ub9c8\ucf93"});' +
+      'items.push({name:name,spec:spec,unit:"개",qty:qty,price:price,selected:true,site:"G마쾓"});' +
     '});' +
-    'var shipEl=Array.from(document.querySelectorAll("li")).find(function(el){' +
-      'return el.innerText.includes("\ubc30\uc1a1\ube44\n")&&el.innerText.includes("\uc6d0")&&!el.innerText.includes("\ubb34\ub8cc")&&el.innerText.length<20;' +
+    'var shipLi=Array.from(document.querySelectorAll("li")).find(function(el){' +
+      'var t=el.innerText;' +
+      'return t.startsWith("배송비\\n")&&t.includes("원")&&!t.includes("무료")&&t.length<15;' +
     '});' +
-    'if(shipEl){' +
-      'var sm=shipEl.innerText.match(/([\d,]+)\uc6d0/);' +
+    'if(shipLi){' +
+      'var sm=shipLi.innerText.match(/([\\d,]+)원/);' +
       'var sp=sm?parseInt(sm[1].replace(/,/g,"")):0;' +
-      'if(sp>0)items.push({name:"\ubc30\uc1a1\ube44",spec:"",unit:"\uc2dd",qty:1,price:sp,selected:true,site:"G\ub9c8\ucf93"});' +
+      'if(sp>0)items.push({name:"배송비",spec:"",unit:"식",qty:1,price:sp,selected:true,site:"G마쾓"});' +
     '}' +
-    'if(!items.length){alert("\uccb4\ud06c\ub41c \uc0c1\ud488\uc744 \ucc3e\uc9c0 \ubabb\ud588\uc2b5\ub2c8\ub2e4.");return;}' +
+    'if(!items.length){alert("체크된 상품을 찾지 못했습니다.");return;}' +
     'var enc=encodeURIComponent(JSON.stringify(items));' +
     'window.open("https://kirakein-gif.github.io/cart.html#"+enc,"_blank");' +
   '})();';
