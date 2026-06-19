@@ -44,7 +44,7 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
 <body>
 
 <div class="topbar">
-  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.7</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
+  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.8</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
   <div class="summary-wrap">
     <div class="summary-card"><span>품목 수</span><strong id="sumCount">0건</strong></div>
     <div class="summary-card"><span>합계금액</span><strong id="sumTotal">0원</strong></div>
@@ -69,6 +69,7 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
     <a class="bm-btn" id="bmBtn" href="#">🛒 쿠팡 장바구니 추출</a>
     <a class="bm-btn" id="bmGmarket" href="#" style="background:#2e3192;">🛒 G마켓 장바구니 추출</a>
     <a class="bm-btn" id="bm11st" href="#" style="background:#cc0000;">🛒 11번가 장바구니 추출</a>
+    <a class="bm-btn" id="bmEmart" href="#" style="background:#f4a200;color:#000;">🛒 이마트몰 장바구니 추출</a>
   </div>
     <div class="bm-hint">← <b>북마크바로 드래그</b>하여 설치<br>쿠팡 장바구니 페이지에서만 작동합니다</div>
   </div>
@@ -216,6 +217,36 @@ window.addEventListener('load', function() {
     'window.open("https://kirakein-gif.github.io/cart.html#"+enc,"_blank");' +
   '})();';
   document.getElementById('bm11st').href = bm11st;
+
+  // 이마트몰 북마클릿
+  var bmEmart = 'javascript:(function(){' +
+    'var items=[];' +
+    'document.querySelectorAll("input[type=checkbox]:checked").forEach(function(cb){' +
+      'var c2=cb.parentElement.parentElement;' +
+      'if(c2.innerText.trim()!="\uc0c1\ud488\uc120\ud0dd")return;' +
+      'var c3=cb.parentElement.parentElement.parentElement;' +
+      'var t=c3.innerText;' +
+      'var nm=t.match(/\uc0c1\ud488 \uc0ad\uc81c\n\n(.+?)\n/);' +
+      'var name=nm?nm[1].trim():"";' +
+      'if(!name)return;' +
+      'var pm=t.match(/\ud310\ub9e4\uac00\uaca9\n([\d,]+)\n\uc6d0/);' +
+      'var price=pm?parseInt(pm[1].replace(/,/g,"")):0;' +
+      'if(!price)return;' +
+      'var qm=t.match(/\ud604\uc7ac\uc218\ub7c9\n(\d+)/);' +
+      'var qty=qm?parseInt(qm[1]):1;' +
+      'items.push({name:name,spec:"",unit:"\uac1c",qty:qty,price:price,selected:true,site:"\uc774\ub9c8\ud2b8\ubab0"});' +
+    '});' +
+    'var shipDl=Array.from(document.querySelectorAll("dl")).find(function(el){' +
+      'return el.innerText.startsWith("\ubc30\uc1a1\ube44")&&el.innerText.includes("+");' +
+    '});' +
+    'var ship=shipDl?shipDl.innerText.match(/\+([\d,]+)\uc6d0/):null;' +
+    'var shipPrice=ship?parseInt(ship[1].replace(/,/g,"")):0;' +
+    'if(shipPrice>0)items.push({name:"\ubc30\uc1a1\ube44",spec:"",unit:"\uc2dd",qty:1,price:shipPrice,selected:true,site:"\uc774\ub9c8\ud2b8\ubab0"});' +
+    'if(!items.length){alert("\uccb4\ud06c\ub41c \uc0c1\ud488\uc744 \ucc3e\uc9c0 \ubabb\ud588\uc2b5\ub2c8\ub2e4.");return;}' +
+    'var enc=encodeURIComponent(JSON.stringify(items));' +
+    'window.open("https://kirakein-gif.github.io/cart.html#"+enc,"_blank");' +
+  '})();';
+  document.getElementById('bmEmart').href = bmEmart;
 
   // URL 해시에서 데이터 읽기
   var hash = location.hash.slice(1);
