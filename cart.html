@@ -144,19 +144,17 @@ window.addEventListener('load', function() {
       'var c=cb.parentElement.parentElement.parentElement;' +
       'var t=c.innerText;' +
       'if(!t.includes("\uc0c1\ud488\uba85:"))return;' +
-      // 상품명 추출
-      'var nm=t.match(/\uc0c1\ud488\uba85:\n(.+?)\n/);' +
+      'var nm=t.match(/\uc0c1\ud488\uba85:\\n(.+?)\\n/);' +
       'var name=nm?nm[1].trim():"";' +
       'if(!name)return;' +
-      // "구매할 상품 상세 정보" 블록으로 분리
       'var blocks=t.split("\uad6c\ub9e4\ud560 \uc0c1\ud488 \uc0c1\uc138 \uc815\ubcf4");' +
       'blocks.forEach(function(block){' +
         'if(!block.includes("\uc0c1\ud488 \uae08\uc561 :"))return;' +
-        'var op=block.match(/\uc635\uc158\uc120\ud0dd \uc815\ubcf4\n(.+?)\n/);' +
+        'var op=block.match(/\uc635\uc158\uc120\ud0dd \uc815\ubcf4\\n(.+?)\\n/);' +
         'var spec=op?op[1].trim():"";' +
-        'var qm=block.match(/\uc0c1\ud488 \uc218\s+(\d+)\s+\uc99d\uac00/);' +
+        'var qm=block.match(/\uc0c1\ud488 \uc218\\s+(\\d+)\\s+\uc99d\uac00/);' +
         'var qty=qm?parseInt(qm[1]):1;' +
-        'var pm=block.match(/\uc0c1\ud488 \uae08\uc561 :\n([\d,]+)\uc6d0/);' +
+        'var pm=block.match(/\uc0c1\ud488 \uae08\uc561 :\\n([\\d,]+)\uc6d0/);' +
         'var price=pm?parseInt(pm[1].replace(/,/g,"")):0;' +
         'if(!price)return;' +
         'items.push({name:name,spec:spec,unit:"\uac1c",qty:qty,price:price,selected:true,site:"G\ub9c8\ucf93"});' +
@@ -164,10 +162,10 @@ window.addEventListener('load', function() {
     '});' +
     'var shipLi=Array.from(document.querySelectorAll("li")).find(function(el){' +
       'var t=el.innerText;' +
-      'return t.startsWith("\ubc30\uc1a1\ube44\n")&&t.includes("\uc6d0")&&!t.includes("\ubb34\ub8cc")&&t.length<15;' +
+      'return t.startsWith("\ubc30\uc1a1\ube44\\n")&&t.includes("\uc6d0")&&!t.includes("\ubb34\ub8cc")&&t.length<15;' +
     '});' +
     'if(shipLi){' +
-      'var sm=shipLi.innerText.match(/([\d,]+)\uc6d0/);' +
+      'var sm=shipLi.innerText.match(/([\\d,]+)\uc6d0/);' +
       'var sp=sm?parseInt(sm[1].replace(/,/g,"")):0;' +
       'if(sp>0)items.push({name:"\ubc30\uc1a1\ube44",spec:"",unit:"\uc2dd",qty:1,price:sp,selected:true,site:"G\ub9c8\ucf93"});' +
     '}' +
