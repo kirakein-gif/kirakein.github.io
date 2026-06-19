@@ -44,7 +44,7 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
 <body>
 
 <div class="topbar">
-  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.13</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
+  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.14</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
   <div class="summary-wrap">
     <div class="summary-card"><span>품목 수</span><strong id="sumCount">0건</strong></div>
     <div class="summary-card"><span>합계금액</span><strong id="sumTotal">0원</strong></div>
@@ -224,12 +224,12 @@ window.addEventListener('load', function() {
     'var items=[];' +
     'var DEL="\uc0c1\ud488 \uc0ad\uc81c";' +
     'var PRICE="\ud310\ub9e4\uac00\uaca9";' +
-    'var QTY="\ud604\uc7ac\uc218\ub7c9";' +
     'var SEL="\uc0c1\ud488\uc120\ud0dd";' +
     'document.querySelectorAll("input[type=checkbox]:checked").forEach(function(cb){' +
       'var c2=cb.parentElement.parentElement;' +
       'if(c2.innerText.trim()!==SEL)return;' +
-      'var t=c2.parentElement.innerText;' +
+      'var c3=c2.parentElement;' +
+      'var t=c3.innerText;' +
       'var delIdx=t.indexOf(DEL);' +
       'if(delIdx<0)return;' +
       'var afterDel=t.substring(delIdx+DEL.length);' +
@@ -242,13 +242,9 @@ window.addEventListener('load', function() {
       'var priceLines=afterPrice.split(NL).map(function(s){return s.trim();}).filter(function(s){return s.length>0;});' +
       'var price=parseInt(priceLines[0].replace(/,/g,""))||0;' +
       'if(!price)return;' +
-      'var qtyIdx=t.indexOf(QTY);' +
-      'var qty=1;' +
-      'if(qtyIdx>-1){' +
-        'var afterQty=t.substring(qtyIdx+QTY.length);' +
-        'var qtyLines=afterQty.split(NL).map(function(s){return s.trim();}).filter(function(s){return s.length>0;});' +
-        'qty=parseInt(qtyLines[0])||1;' +
-      '}' +
+      // 수량: input[type=number].ordQty
+      'var qtyInput=c3.querySelector("input[type=number]");' +
+      'var qty=qtyInput?parseInt(qtyInput.value)||1:1;' +
       'items.push({name:name,spec:"",unit:"\uac1c",qty:qty,price:price,selected:true,site:"\uc774\ub9c8\ud2b8\ubab0"});' +
     '});' +
     'var shipDl=Array.from(document.querySelectorAll("dl")).find(function(el){' +
