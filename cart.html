@@ -44,7 +44,7 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
 <body>
 
 <div class="topbar">
-  <h1>🛒 장바구니 품의목록 <span class="site-badge" id="siteBadge">쿠팡</span></h1>
+  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.2</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
   <div class="summary-wrap">
     <div class="summary-card"><span>품목 수</span><strong id="sumCount">0건</strong></div>
     <div class="summary-card"><span>합계금액</span><strong id="sumTotal">0원</strong></div>
@@ -65,8 +65,10 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
     <b>④</b> 이 페이지로 자동으로 돌아오면서 목록이 표시됩니다
   </div>
   <div class="bm-row">
+    <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
     <a class="bm-btn" id="bmBtn" href="#">🛒 쿠팡 장바구니 추출</a>
-  <a class="bm-btn" id="bmGmarket" href="#" style="background:#2e3192;margin-top:8px;">🛒 G마켓 장바구니 추출</a>
+    <a class="bm-btn" id="bmGmarket" href="#" style="background:#2e3192;">🛒 G마켓 장바구니 추출</a>
+  </div>
     <div class="bm-hint">← <b>북마크바로 드래그</b>하여 설치<br>쿠팡 장바구니 페이지에서만 작동합니다</div>
   </div>
 </div>
@@ -136,35 +138,40 @@ window.addEventListener('load', function() {
 
   // 지마켓 북마클릿
   var bmGmarket = 'javascript:(function(){' +
-    'var items=[];var seen={};' +
+    'var items=[];' +
     'document.querySelectorAll("input[type=checkbox]:checked").forEach(function(cb){' +
       'if(cb.parentElement.parentElement.innerText.length>0)return;' +
       'var c=cb.parentElement.parentElement.parentElement;' +
       'var t=c.innerText;' +
-      'if(!t.includes("상품명:"))return;' +
-      'var nm=t.match(/상품명:\\n(.+?)\\n/);' +
+      'if(!t.includes("\uc0c1\ud488\uba85:"))return;' +
+      // 상품명 추출
+      'var nm=t.match(/\uc0c1\ud488\uba85:\n(.+?)\n/);' +
       'var name=nm?nm[1].trim():"";' +
-      'if(!name||seen[name])return;seen[name]=true;' +
-      'var op=t.match(/옵션선택 정보\\n(.+?)\\n/);' +
-      'var spec=op?op[1].trim():"";' +
-      'var qm=t.match(/상품 수\\s+(\\d+)\\s+증가/);' +
-      'var qty=qm?parseInt(qm[1]):1;' +
-      'var pm=t.match(/상품 금액 :\\n([\\d,]+)원/);' +
-      'var price=pm?parseInt(pm[1].replace(/,/g,"")):"0";' +
-      'price=parseInt(price)||0;' +
-      'if(!price)return;' +
-      'items.push({name:name,spec:spec,unit:"개",qty:qty,price:price,selected:true,site:"G마쾓"});' +
+      'if(!name)return;' +
+      // "구매할 상품 상세 정보" 블록으로 분리
+      'var blocks=t.split("\uad6c\ub9e4\ud560 \uc0c1\ud488 \uc0c1\uc138 \uc815\ubcf4");' +
+      'blocks.forEach(function(block){' +
+        'if(!block.includes("\uc0c1\ud488 \uae08\uc561 :"))return;' +
+        'var op=block.match(/\uc635\uc158\uc120\ud0dd \uc815\ubcf4\n(.+?)\n/);' +
+        'var spec=op?op[1].trim():"";' +
+        'var qm=block.match(/\uc0c1\ud488 \uc218\s+(\d+)\s+\uc99d\uac00/);' +
+        'var qty=qm?parseInt(qm[1]):1;' +
+        'var pm=block.match(/\uc0c1\ud488 \uae08\uc561 :\n([\d,]+)\uc6d0/);' +
+        'var price=pm?parseInt(pm[1].replace(/,/g,"")):0;' +
+        'if(!price)return;' +
+        'items.push({name:name,spec:spec,unit:"\uac1c",qty:qty,price:price,selected:true,site:"G\ub9c8\ucf93"});' +
+      '});' +
     '});' +
     'var shipLi=Array.from(document.querySelectorAll("li")).find(function(el){' +
       'var t=el.innerText;' +
-      'return t.startsWith("배송비\\n")&&t.includes("원")&&!t.includes("무료")&&t.length<15;' +
+      'return t.startsWith("\ubc30\uc1a1\ube44\n")&&t.includes("\uc6d0")&&!t.includes("\ubb34\ub8cc")&&t.length<15;' +
     '});' +
     'if(shipLi){' +
-      'var sm=shipLi.innerText.match(/([\\d,]+)원/);' +
+      'var sm=shipLi.innerText.match(/([\d,]+)\uc6d0/);' +
       'var sp=sm?parseInt(sm[1].replace(/,/g,"")):0;' +
-      'if(sp>0)items.push({name:"배송비",spec:"",unit:"식",qty:1,price:sp,selected:true,site:"G마쾓"});' +
+      'if(sp>0)items.push({name:"\ubc30\uc1a1\ube44",spec:"",unit:"\uc2dd",qty:1,price:sp,selected:true,site:"G\ub9c8\ucf93"});' +
     '}' +
-    'if(!items.length){alert("체크된 상품을 찾지 못했습니다.");return;}' +
+    'if(!items.length){alert("\uccb4\ud06c\ub41c \uc0c1\ud488\uc744 \ucc3e\uc9c0 \ubabb\ud588\uc2b5\ub2c8\ub2e4.");return;}' +
     'var enc=encodeURIComponent(JSON.stringify(items));' +
     'window.open("https://kirakein-gif.github.io/cart.html#"+enc,"_blank");' +
   '})();';
