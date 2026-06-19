@@ -44,7 +44,7 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
 <body>
 
 <div class="topbar">
-  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.5-test</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
+  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.6-test</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
   <div class="summary-wrap">
     <div class="summary-card"><span>품목 수</span><strong id="sumCount">0건</strong></div>
     <div class="summary-card"><span>합계금액</span><strong id="sumTotal">0원</strong></div>
@@ -179,6 +179,7 @@ window.addEventListener('load', function() {
   // 11번가 북마클릿
   var bm11st = 'javascript:(function(){' +
     'var items=[];' +
+    'var shipSeen={};' +
     'document.querySelectorAll("input[type=checkbox]:checked").forEach(function(cb){' +
       'var c=cb.parentElement.parentElement;' +
       'var t=c.innerText;' +
@@ -192,10 +193,17 @@ window.addEventListener('load', function() {
       'var pm=t.match(/\ud560\uc778\ubaa8\uc74c\uac00\\n([\\d,]+)\uc6d0/)||t.match(/\ud310\ub9e4\uac00\\n([\\d,]+)\uc6d0/);' +
       'var price=pm?Math.floor(parseInt(pm[1].replace(/,/g,""))/qty):0;' +
       'if(!price)return;' +
-      'var sm=t.match(/\ubc30\uc1a1\ube44\\n\\n\ub3c4\uc6c0\ub9d0\\n\ubc30\uc1a1\ube44\\n\\n([\\d,]+)\uc6d0/);' +
-      'var ship=sm?parseInt(sm[1].replace(/,/g,"")):0;' +
       'items.push({name:name,spec:spec,unit:"\uac1c",qty:qty,price:price,selected:true,site:"11\ubc88\uac00"});' +
-      'if(ship>0)items.push({name:"\ubc30\uc1a1\ube44("+name.substring(0,10)+"...)",spec:"",unit:"\uc2dd",qty:1,price:ship,selected:true,site:"11\ubc88\uac00"});' +
+      // 판매자 그룹 4단계 위에서 배송비 한 번만 추가
+      'var grp=c.parentElement.parentElement.parentElement.parentElement;' +
+      'var grpId=grp.className||grp.id||"g"+items.length;' +
+      'if(!shipSeen[grpId]){' +
+        'shipSeen[grpId]=true;' +
+        'var bm=grp.innerText.match(/\ub958\uc1a1 \ubc30\uc1a1\ube44 ([\\d,]+)\uc6d0/);' +
+        'var ship=bm?parseInt(bm[1].replace(/,/g,"")):0;' +
+        'if(!ship){var ind=t.match(/\ubc30\uc1a1\ube44\\n\\n\ub3c4\uc6c0\ub9d0\\n\ubc30\uc1a1\ube44\\n\\n([\\d,]+)\uc6d0/);ship=ind?parseInt(ind[1].replace(/,/g,"")):0;}' +
+        'if(ship>0)items.push({name:"\ubc30\uc1a1\ube44",spec:"",unit:"\uc2dd",qty:1,price:ship,selected:true,site:"11\ubc88\uac00"});' +
+      '}' +
     '});' +
     'if(!items.length){alert("\uccb4\ud06c\ub41c \uc0c1\ud488\uc744 \ucc3e\uc9c0 \ubabb\ud588\uc2b5\ub2c8\ub2e4.");return;}' +
     'var enc=encodeURIComponent(JSON.stringify(items));' +
