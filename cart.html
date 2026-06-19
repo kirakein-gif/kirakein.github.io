@@ -44,7 +44,7 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
 <body>
 
 <div class="topbar">
-  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.4-test</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
+  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.5-test</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
   <div class="summary-wrap">
     <div class="summary-card"><span>품목 수</span><strong id="sumCount">0건</strong></div>
     <div class="summary-card"><span>합계금액</span><strong id="sumTotal">0원</strong></div>
@@ -190,7 +190,7 @@ window.addEventListener('load', function() {
       'var qm=t.match(/(\\d+)\ucfe0\ud3f0\ubcc0\uacbd/);' +
       'var qty=qm?parseInt(qm[1]):1;' +
       'var pm=t.match(/\ud560\uc778\ubaa8\uc74c\uac00\\n([\\d,]+)\uc6d0/)||t.match(/\ud310\ub9e4\uac00\\n([\\d,]+)\uc6d0/);' +
-      'var price=pm?parseInt(pm[1].replace(/,/g,"")):0;' +
+      'var price=pm?Math.floor(parseInt(pm[1].replace(/,/g,""))/qty):0;' +
       'if(!price)return;' +
       'var sm=t.match(/\ubc30\uc1a1\ube44\\n\\n\ub3c4\uc6c0\ub9d0\\n\ubc30\uc1a1\ube44\\n\\n([\\d,]+)\uc6d0/);' +
       'var ship=sm?parseInt(sm[1].replace(/,/g,"")):0;' +
