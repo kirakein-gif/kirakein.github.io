@@ -44,7 +44,7 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
 <body>
 
 <div class="topbar">
-  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.11</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
+  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.12</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
   <div class="summary-wrap">
     <div class="summary-card"><span>품목 수</span><strong id="sumCount">0건</strong></div>
     <div class="summary-card"><span>합계금액</span><strong id="sumTotal">0원</strong></div>
@@ -222,31 +222,32 @@ window.addEventListener('load', function() {
   var bmEmart = 'javascript:(function(){' +
     'var items=[];' +
     'var DEL="\uc0c1\ud488 \uc0ad\uc81c";' +
-    'var PRICE="\ud310\ub9e4\uac00\uaca9";' +
+    'var PRICE="\ud310\ub9e4\uac00\uac00";' +
     'var QTY="\ud604\uc7ac\uc218\ub7c9";' +
     'var SEL="\uc0c1\ud488\uc120\ud0dd";' +
     'document.querySelectorAll("input[type=checkbox]:checked").forEach(function(cb){' +
       'var c2=cb.parentElement.parentElement;' +
       'if(c2.innerText.trim()!==SEL)return;' +
       'var t=c2.parentElement.innerText;' +
-      // 상품명: "상품 삭제" 이후 첫 번째 비어있지 않은 줄
       'var delIdx=t.indexOf(DEL);' +
       'if(delIdx<0)return;' +
-      'var afterDel=t.substring(delIdx+DEL.length).trimStart();' +
-      'var name=afterDel.split("\n")[0].trim();' +
-      'if(!name)name=afterDel.split("\n")[1].trim();' +
+      'var afterDel=t.substring(delIdx+DEL.length);' +
+      'var delLines=afterDel.split("\n").map(function(s){return s.trim();}).filter(function(s){return s.length>0;});' +
+      'var name=delLines[0]||"";' +
       'if(!name)return;' +
-      // 가격: "판매가격" 이후 숫자
-      'var priceIdx=t.indexOf(PRICE);' +
+      'var priceIdx=t.indexOf("\ud310\ub9e4\uac00\uaca9");' +
       'if(priceIdx<0)return;' +
-      'var afterPrice=t.substring(priceIdx+PRICE.length).trimStart();' +
-      'var priceStr=afterPrice.split("\n")[0].replace(/,/g,"").trim();' +
-      'var price=parseInt(priceStr)||0;' +
+      'var afterPrice=t.substring(priceIdx+"\ud310\ub9e4\uac00\uaca9".length);' +
+      'var priceLines=afterPrice.split("\n").map(function(s){return s.trim();}).filter(function(s){return s.length>0;});' +
+      'var price=parseInt(priceLines[0].replace(/,/g,""))||0;' +
       'if(!price)return;' +
-      // 수량: "현재수량" 이후 숫자
       'var qtyIdx=t.indexOf(QTY);' +
       'var qty=1;' +
-      'if(qtyIdx>-1){var afterQty=t.substring(qtyIdx+QTY.length).trimStart();qty=parseInt(afterQty.split("\n")[0])||1;}' +
+      'if(qtyIdx>-1){' +
+        'var afterQty=t.substring(qtyIdx+QTY.length);' +
+        'var qtyLines=afterQty.split("\n").map(function(s){return s.trim();}).filter(function(s){return s.length>0;});' +
+        'qty=parseInt(qtyLines[0])||1;' +
+      '}' +
       'items.push({name:name,spec:"",unit:"\uac1c",qty:qty,price:price,selected:true,site:"\uc774\ub9c8\ud2b8\ubab0"});' +
     '});' +
     'var shipDl=Array.from(document.querySelectorAll("dl")).find(function(el){' +
@@ -258,8 +259,7 @@ window.addEventListener('load', function() {
       'if(plusIdx>-1){' +
         'var afterPlus=dlTxt.substring(plusIdx+1);' +
         'var wonIdx=afterPlus.indexOf("\uc6d0");' +
-        'var shipStr=wonIdx>-1?afterPlus.substring(0,wonIdx).replace(/,/g,""):"0";' +
-        'var shipPrice=parseInt(shipStr)||0;' +
+        'var shipPrice=wonIdx>-1?parseInt(afterPlus.substring(0,wonIdx).replace(/,/g,"")):0;' +
         'if(shipPrice>0)items.push({name:"\ubc30\uc1a1\ube44",spec:"",unit:"\uc2dd",qty:1,price:shipPrice,selected:true,site:"\uc774\ub9c8\ud2b8\ubab0"});' +
       '}' +
     '}' +
