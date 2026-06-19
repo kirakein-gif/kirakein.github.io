@@ -44,7 +44,7 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
 <body>
 
 <div class="topbar">
-  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.7-test</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
+  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.7</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
   <div class="summary-wrap">
     <div class="summary-card"><span>품목 수</span><strong id="sumCount">0건</strong></div>
     <div class="summary-card"><span>합계금액</span><strong id="sumTotal">0원</strong></div>
@@ -226,7 +226,14 @@ window.addEventListener('load', function() {
       if (items.length) {
         document.getElementById('installPanel').style.display = 'none';
         document.getElementById('tableWrap').style.display = 'block';
-        document.getElementById('siteBadge').style.display = 'inline-block';
+        // 사이트 뱃지 설정
+        var siteColors = {'쿠팡':'#4285f4','G마켓':'#2e3192','11번가':'#cc0000','이마트몰':'#f4a200'};
+        var siteName = items[0].site || '';
+        var badge = document.getElementById('siteBadge');
+        badge.innerText = siteName;
+        badge.style.background = siteColors[siteName] || '#4285f4';
+        badge.style.color = siteName === '이마트몰' ? '#000' : '#fff';
+        badge.style.display = 'inline-block';
         render();
       }
     } catch(e) {}
