@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Pretendard',sans-serif;}
-body{background:#f0f4f8;min-height:100vh;display:flex;flex-direction:column;}
+body{background:#f0f4f8;}
 .topbar{background:#1e293b;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
 .topbar h1{font-size:1rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;}
 .site-badge{padding:3px 10px;border-radius:4px;font-size:.72rem;font-weight:800;background:#4285f4;color:#fff;display:none;}
@@ -29,7 +29,7 @@ body{background:#f0f4f8;min-height:100vh;display:flex;flex-direction:column;}
 .bm-btn{display:inline-block;padding:9px 18px;border-radius:7px;font-size:.83rem;font-weight:700;color:#fff;cursor:grab;text-decoration:none;user-select:none;white-space:nowrap;flex-shrink:0;background:#4285f4;}
 .bm-hint{font-size:.76rem;color:#888;line-height:1.6;}
 .bm-hint b{color:#444;}
-.table-wrap{flex:1;padding:20px 24px;overflow-y:auto;}
+.table-wrap{padding:20px 24px;}
 .table-box{background:#fff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;}
 table{width:100%;border-collapse:collapse;table-layout:fixed;}
 th,td{padding:10px 12px;font-size:.85rem;border-bottom:1px solid #e2e8f0;text-align:center;}
@@ -44,7 +44,7 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
 <body>
 
 <div class="topbar">
-  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.20</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
+  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.21</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
   <div class="summary-wrap">
     <div class="summary-card"><span>품목 수</span><strong id="sumCount">0건</strong></div>
     <div class="summary-card"><span>합계금액</span><strong id="sumTotal">0원</strong></div>
@@ -99,7 +99,7 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
 <div class="summary-panel" id="summaryPanel" style="display:none;">
   <div class="summary-panel-inner">
     <div class="summary-header">
-      <span>📋 품의개요 <small style="color:#94a3b8;font-weight:400;">○○○○ 부분을 클릭하여 수정 후 복사하세요</small></span>
+      <span>📋 품의개요 <small style="color:#94a3b8;font-weight:400;">○○○○ 부분을 클릭하여 수정 후 복사하세요</small><span id="copyDone" style="color:#3b82f6;font-weight:600;margin-left:10px;display:none;">✅ 복사되었습니다</span></span>
       <button class="btn-copy" onclick="copySummary()">📋 품의개요 복사하기</button>
     </div>
     <div class="summary-text" id="summaryText" contenteditable="true" spellcheck="false"></div>
@@ -395,7 +395,9 @@ function updateSummaryPanel() {
 function copySummary() {
   var text = document.getElementById('summaryText').innerText.trim();
   navigator.clipboard.writeText(text).then(function(){
-    showToast('✅ 품의개요가 복사되었습니다. 품의서에 붙여넣기(Ctrl+V) 하세요.');
+    var done = document.getElementById('copyDone');
+    done.style.display = 'inline';
+    setTimeout(function(){ done.style.display = 'none'; }, 2000);
   }).catch(function(){
     showToast('⚠️ 복사에 실패했습니다. 텍스트를 직접 선택하여 복사해 주세요.');
   });
