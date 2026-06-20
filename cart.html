@@ -44,7 +44,7 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
 <body>
 
 <div class="topbar">
-  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.19</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
+  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.20</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
   <div class="summary-wrap">
     <div class="summary-card"><span>품목 수</span><strong id="sumCount">0건</strong></div>
     <div class="summary-card"><span>합계금액</span><strong id="sumTotal">0원</strong></div>
@@ -92,6 +92,17 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
       </thead>
       <tbody id="tbody"></tbody>
     </table>
+  </div>
+</div>
+
+<!-- 품의개요 패널 -->
+<div class="summary-panel" id="summaryPanel" style="display:none;">
+  <div class="summary-panel-inner">
+    <div class="summary-header">
+      <span>📋 품의개요 <small style="color:#94a3b8;font-weight:400;">○○○○ 부분을 클릭하여 수정 후 복사하세요</small></span>
+      <button class="btn-copy" onclick="copySummary()">📋 품의개요 복사하기</button>
+    </div>
+    <div class="summary-text" id="summaryText" contenteditable="true" spellcheck="false"></div>
   </div>
 </div>
 
@@ -382,7 +393,7 @@ function updateSummaryPanel() {
 }
 
 function copySummary() {
-  var text = document.getElementById('summaryText').innerText;
+  var text = document.getElementById('summaryText').innerText.trim();
   navigator.clipboard.writeText(text).then(function(){
     showToast('✅ 품의개요가 복사되었습니다. 품의서에 붙여넣기(Ctrl+V) 하세요.');
   }).catch(function(){
@@ -392,6 +403,12 @@ function copySummary() {
 
 var _origRender = render;
 render = function(){ _origRender(); updateSummaryPanel(); };
+var _origSetField = setField;
+setField = function(idx,field,val){ _origSetField(idx,field,val); updateSummaryPanel(); };
+var _origDeleteRow = deleteRow;
+deleteRow = function(idx){ _origDeleteRow(idx); updateSummaryPanel(); };
+var _origToggleAll = toggleAll;
+toggleAll = function(checked){ _origToggleAll(checked); updateSummaryPanel(); };
 </script>
 
 <style>
@@ -403,16 +420,6 @@ render = function(){ _origRender(); updateSummaryPanel(); };
 .btn-copy:hover{background:#2563eb;}
 .summary-text{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;font-size:.85rem;line-height:1.8;white-space:pre-wrap;color:#1e293b;font-family:'Pretendard',sans-serif;}
 </style>
-
-<div class="summary-panel" id="summaryPanel" style="display:none;">
-  <div class="summary-panel-inner">
-    <div class="summary-header">
-      <span>📋 품의개요 <small style="color:#94a3b8;font-weight:400;">○○○○ 부분을 수정 후 복사하세요</small></span>
-      <button class="btn-copy" onclick="copySummary()">📋 품의서에 붙여넣기</button>
-    </div>
-    <div class="summary-text" id="summaryText"></div>
-  </div>
-</div>
 
 </body>
 </html>
