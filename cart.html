@@ -44,7 +44,7 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
 <body>
 
 <div class="topbar">
-  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.21</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
+  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.22</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
   <div class="summary-wrap">
     <div class="summary-card"><span>품목 수</span><strong id="sumCount">0건</strong></div>
     <div class="summary-card"><span>합계금액</span><strong id="sumTotal">0원</strong></div>
@@ -384,9 +384,10 @@ function updateSummaryPanel() {
   var count = sel.length;
   var korAmount = '금'+numToKorean(total)+'원';
   var numAmount = '금'+total.toLocaleString()+'원';
-  var text = '○○○○를 위한 물품구입('+firstName+' 외 '+(count-1)+'종)\n\n'+
+  var itemStr = count > 1 ? firstName+' 외 '+(count-1)+'종' : firstName;
+  var text = '○○○○를 위한 물품구입('+itemStr+')\n\n'+
     '○○○○를 위한 물품을 구입하고자 합니다.\n'+
-    ' 1. 품목: '+firstName+' 외 '+(count-1)+'종\n'+
+    ' 1. 품목: '+itemStr+'\n'+
     ' 2. 금액: '+numAmount+'('+korAmount+')';
   document.getElementById('summaryText').innerText = text;
   panel.style.display = 'block';
