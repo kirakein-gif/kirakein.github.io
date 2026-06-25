@@ -44,7 +44,7 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
 <body>
 
 <div class="topbar">
-  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.22</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
+  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.24</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
   <div class="summary-wrap">
     <div class="summary-card"><span>품목 수</span><strong id="sumCount">0건</strong></div>
     <div class="summary-card"><span>합계금액</span><strong id="sumTotal">0원</strong></div>
@@ -52,8 +52,9 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
 </div>
 
 <div class="toolbar">
-  <button class="btn btn-excel" onclick="exportExcel()">📥 엑셀 다운로드</button>
   <button class="btn btn-clear" onclick="clearAll()">🗑 목록 초기화</button>
+  <button class="btn btn-excel" onclick="exportExcel()">📥 품의목록 다운로드</button>
+  <button class="btn btn-excel" onclick="exportCause()" style="background:#7c3aed;">📥 원인행위 다운로드</button>
 </div>
 
 <div class="install-panel" id="installPanel">
@@ -103,6 +104,17 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
       <button class="btn-copy" onclick="copySummary()">📋 품의개요 복사하기</button>
     </div>
     <div class="summary-text" id="summaryText" contenteditable="true" spellcheck="false"></div>
+  </div>
+</div>
+
+<!-- 원인행위개요 패널 -->
+<div class="summary-panel" id="causePanel" style="display:none;border-top:2px solid #ede9fe;">
+  <div class="summary-panel-inner">
+    <div class="summary-header">
+      <span>📋 원인행위개요 <small style="color:#94a3b8;font-weight:400;">○○○○ 부분을 클릭하여 수정 후 복사하세요</small><span id="causeCopyDone" style="color:#7c3aed;font-weight:600;margin-left:10px;display:none;">✅ 복사되었습니다</span></span>
+      <button class="btn-copy" style="background:#7c3aed;" onclick="copyCause()">📋 원인행위개요 복사하기</button>
+    </div>
+    <div class="summary-text" id="causeText" contenteditable="true" spellcheck="false"></div>
   </div>
 </div>
 
@@ -340,6 +352,8 @@ function clearAll(){
   document.getElementById('installPanel').style.display='block';
   document.getElementById('tableWrap').style.display='none';
   document.getElementById('siteBadge').style.display='none';
+    document.getElementById('causePanel').style.display='none';
+    document.getElementById('summaryPanel').style.display='none';
   updateSummary();
 }
 function exportExcel(){
@@ -353,6 +367,22 @@ function exportExcel(){
   var now=new Date();
   var stamp=now.getFullYear()+('0'+(now.getMonth()+1)).slice(-2)+('0'+now.getDate()).slice(-2);
   XLSX.writeFile(wb,'장바구니품의목록_'+stamp+'.xlsx');
+}
+
+function exportCause() {
+  var sel = items.filter(function(i){ return i.selected; });
+  if(!sel.length){ showToast('선택된 항목이 없습니다.'); return; }
+  var data = sel.map(function(i){
+    return {'품명':i.name,'규격':i.spec||'','수량':i.qty,'단위':i.unit||'개','예상단가':i.price,'예상금액':i.qty*i.price,'용도':''};
+  });
+  var ws = XLSX.utils.json_to_sheet(data, {header:['품명','규격','수량','단위','예상단가','예상금액','용도']});
+  ws['!cols'] = [{wch:40},{wch:20},{wch:8},{wch:8},{wch:12},{wch:12},{wch:20}];
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '물품내역');
+  var now = new Date();
+  var stamp = now.getFullYear()+('0'+(now.getMonth()+1)).slice(-2)+('0'+now.getDate()).slice(-2);
+  XLSX.writeFile(wb, '원인행위물품내역_'+stamp+'.xlsx');
+  showToast('원인행위 파일을 저장했습니다.');
 }
 
 /* ── 품의개요 ── */
@@ -391,6 +421,13 @@ function updateSummaryPanel() {
     ' 2. 금액: '+numAmount+'('+korAmount+')';
   document.getElementById('summaryText').innerText = text;
   panel.style.display = 'block';
+  var causeItemStr = count > 1 ? firstName+' 외 '+(count-1)+'종' : firstName;
+  var causeText = '○○○○를 위한 물품구입비 지급('+causeItemStr+')'+'\n\n'+
+    '○○○○를 위한 물품을 구입하고 대가를 지급하고자 합니다.'+'\n'+
+    ' 1. 품목: '+causeItemStr+'\n'+
+    ' 2. 금액: '+numAmount+'('+korAmount+')';
+  document.getElementById('causeText').innerText = causeText;
+  document.getElementById('causePanel').style.display = 'block';
 }
 
 function copySummary() {
@@ -402,6 +439,15 @@ function copySummary() {
   }).catch(function(){
     showToast('⚠️ 복사에 실패했습니다. 텍스트를 직접 선택하여 복사해 주세요.');
   });
+}
+
+function copyCause() {
+  var text = document.getElementById('causeText').innerText.trim();
+  navigator.clipboard.writeText(text).then(function(){
+    var done = document.getElementById('causeCopyDone');
+    done.style.display = 'inline';
+    setTimeout(function(){ done.style.display = 'none'; }, 2000);
+  }).catch(function(){ showToast('⚠️ 복사에 실패했습니다.'); });
 }
 
 var _origRender = render;
