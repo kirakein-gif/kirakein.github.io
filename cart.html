@@ -44,7 +44,7 @@ td:nth-child(2),td:nth-child(3){text-align:left;}
 <body>
 
 <div class="topbar">
-  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.25</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
+  <h1>🛒 장바구니 품의목록 <span style="font-size:.75rem;color:#94a3b8;font-weight:400;">v2.26</span> <span class="site-badge" id="siteBadge">쿠팡</span></h1>
   <div class="summary-wrap">
     <div class="summary-card"><span>품목 수</span><strong id="sumCount">0건</strong></div>
     <div class="summary-card"><span>합계금액</span><strong id="sumTotal">0원</strong></div>
@@ -139,7 +139,7 @@ window.addEventListener('load', function() {
       'var nm=t.match(/^([\\s\\S]+?)옵션:/);' +
       'var name=nm?nm[1].trim():(t.match(/^([\\s\\S]+?)삭제/)?t.match(/^([\\s\\S]+?)삭제/)[1].trim():"");' +
       'if(!name)return;' +
-      'if(seen[name])return;seen[name]=true;' +
+      'var seenKey=name+"|"+spec;if(seen[seenKey])return;seen[seenKey]=true;' +
       'var sm=t.match(/옵션:\\s*([^\\n]+)/);' +
       'var sr=sm?sm[1].trim():"";' +
       'var discM=t.match(/\\d+%\\s*([\\d,]+)\\s*원/);' +
